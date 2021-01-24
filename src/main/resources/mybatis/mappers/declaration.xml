@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.Declaration">
+<!-- 	중복 신고 체크 -->
+	<select id="CheckDeclaration" parameterType="hashmap" resultType="int">
+	<![CDATA[
+	select count(*) from declaration where id = #{id} and num = #{num} and category = #{category}
+	]]>
+	</select>
+
+<!-- 	신고 번호 0 체크 -->
+	<select id="CheckNum" resultType="int">
+	<![CDATA[
+	select count(declarationNum) from declaration
+	]]>
+	</select>
+<!-- 	신고 번호 구하기 -->
+	<select id="getNum" resultType="int">
+	<![CDATA[
+	select max(declarationNum) from declaration
+	]]>
+	</select>
+<!-- 	신고 신청 -->
+	<insert id="enterDeclaration" parameterType="declarationVO">
+	<![CDATA[
+	INSERT INTO declaration (`declarationNum`, `reporter`, `respondent`, `category`, `num`)
+ 	VALUES (#{declarationNum},#{reporter},#{respondent},#{category},#{num});
+	]]>
+	</insert>
+<!-- 	피신고자 아이디 구하기 -->
+	<select id="getId" parameterType="hashmap" resultType="String">
+	select  m.id from 
+	<choose>
+		<when test="category == free">
+		freeboard 
+		</when>
+		<when test="category == friends">
+		friendsboard 
+		</when>
+		<when test="category == jobSearch">
+		jobsearch 
+		</when>
+		<when test="category == market">
+		marketboard 
+		</when>
+		<when test="category == review">
+		reviewboard
+		</when>
+		<when test="category == underwater">
+		underwaterboard 
+		</when>
+	</choose>
+	b join member m on b.nickname=m.nickname where num=#{num} ;
+	</select>
+<!-- 	피신고자 decCount 증가 -->
+	<update id="addDecCount" parameterType="String">
+	<![CDATA[
+	UPDATE member SET decCount = decCount+1 WHERE id = #{id}
+	]]>
+	</update>
+<!-- 	사용자 decCount 체크 -->
+	<select id="CheckDecCount" parameterType="String" resultType="int">
+	<![CDATA[
+	select decCount from member where id = #{id} 
+	]]>
+	</select>
+<!-- 	사용자 상태 변경 -->
+	<update id="changeMemberStatus" parameterType="String">
+	<![CDATA[
+	update memberset set status = 1 where id = #{id}
+	]]>
+	</update>
+<!-- 	신고당한 글 신고당한 횟수 가져오기 -->
+	<select id="getDecCount" parameterType="hashmap" resultType="int">
+	select count(*) from declaration where category = #{category} and num = #{num}
+	</select>
+<!-- 	글 상태 변경 -->
+	<update id="changeWrittenStatus" parameterType="hashmap">
+	update 
+		<choose>
+		<when test="category == free">
+		freeboard
+		</when>
+		<when test="category == friends">
+		friendsboard
+		</when>
+		<when test="category == jobSearch">
+		jobsearch
+		</when>
+		<when test="category == market">
+		marketboard
+		</when>
+		<when test="category == review">
+		reviewboard
+		</when>
+		<when test="category == underwater">
+		underwaterboard
+		</when>
+	</choose>
+	set status = 1 where num = #{num}
+	</update>
+<!-- 	카테고리 리조트시 아이디 가져오기 -->
+	<select id="getResortId" parameterType="int" resultType="String">
+		<![CDATA[
+		select id from resort where num = #{num}
+		]]>
+	</select>
+<!-- 	리조트 상태 변경 -->
+	<update id="changeResortStatus" parameterType="int">
+		<![CDATA[
+		update resort set status = 2 where num = #{num}
+		]]>
+	</update>
+</mapper>

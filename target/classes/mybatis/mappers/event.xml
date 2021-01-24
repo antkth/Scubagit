@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.event">
+	<resultMap type="eventVO" id="EventResult">
+		<result property="num" column="num" />
+		<result property="viewcount" column="viewcount" />
+		<result property="status" column="status" />
+		<result property="nickname" column="nickname" />
+		<result property="thumbnail" column="thumbnail" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="communityname" column="communityname" />
+		<result property="introduction" column="introduction" />
+		<result property="startdate" column="startdate" />
+		<result property="enddate" column="enddate" />
+		<result property="writeDate" column="writeDate" />
+	</resultMap>
+	
+	<!-- o 전체 게시글 조회 -->
+	<select id="allBoardList" resultMap="EventResult">
+	<![CDATA[
+	select * from event where status = 0 order by writedate desc 
+	limit #{pagefirst},#{pagesize};
+	]]>
+	</select>	
+	
+	<!-- o 전체 게시글 총 수 구하기 -->
+	<select id="getTotal" resultType="int">
+	<![CDATA[
+	select count(num) from event;
+	]]>
+	</select>
+
+	<!-- o 게시글 작성 -->
+	<insert id="write" parameterType="eventVO">
+	<![CDATA[
+	INSERT INTO event (`nickname`, `thumbnail`,  `title`, `content`,
+	 `communityname`, `introduction`, `startdate`, `enddate`)
+	  VALUES (#{nickname}, #{thumbnail}, #{title},
+	   #{content},#{communityname},#{introduction},
+	   #{startdate},#{enddate});
+	]]>
+	</insert>
+	
+	<!-- o 최근 게시글 번호 조회 -->
+	<select id="getMaxNum" resultType="_int">
+	<![CDATA[
+	select max(num) from event;
+	]]>
+	</select>
+	
+	<!-- o 이미지 경로 변경 -->
+	<update id="contentChange" parameterType="hashmap">
+	<![CDATA[
+	update event set content = #{afterContent} where num = ${contentNum};
+	]]>
+	</update>
+	
+	<!-- 게시글 상세보기 -->
+	<select id="viewList" parameterType="_int" resultType="eventVO">
+	<![CDATA[
+	select * from event where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 삭제시 닉네임 체크 -->
+	<select id="idCheck" parameterType="_int" resultType="String">
+	<![CDATA[
+	select nickname from event where num = #{contentNum};
+	]]>
+	</select>	
+
+	<!-- 게시글 삭제 -->
+	<update id="condelete" parameterType="_int">
+	<![CDATA[
+	 UPDATE event SET status = 1 WHERE num=#{contentNum}
+	]]>
+	</update>
+	
+	<!-- 게시글 수정페이지 이동 -->
+	<select id="ModifyList" parameterType="_int" resultType="eventVO">
+	<![CDATA[
+	select * from event where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 수정 -->
+	<update id="Modify" parameterType="eventVO">
+	<![CDATA[
+	update event set title = #{title}, content = #{content} , thumbnail = #{thumbnail},
+	startdate = #{startdate}, enddate = #{enddate} where num = #{num}
+	]]>
+	</update>
+
+</mapper>

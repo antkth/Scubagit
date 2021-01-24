@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.FriendsBoard">
+	<resultMap type="friendsboardVO" id="friendsboardResult">
+		<result property="num" column="num" />
+		<result property="nickname" column="nickname" />
+		<result property="viewcount" column="viewcount" />
+		<result property="likecount" column="likecount" />
+		<result property="writedate" column="writedate" />
+		<result property="title" column="title" />
+		<result property="introduction" column="introduction" />
+		<result property="appmethod" column="appmethod" />
+		<result property="state" column="state" />
+		<result property="startdate" column="startdate" />
+		<result property="enddate" column="enddate" />
+		<result property="membercount" column="membercount" />
+		<result property="nowcount" column="nowcount" />
+	</resultMap>
+	
+	<!-- 전체 게시글 조회 -->
+	<select id="allBoardList" resultMap="friendsboardResult">
+	select * from friendsboard where title like #{search} order by
+	<choose>
+		<when test="sort == 'viewcount'">
+		viewcount desc, writedate desc 
+		</when>
+		<when test="sort == 'writedate'">
+		writedate desc 
+		</when>
+		<when test="sort == 'likecount'">
+		likecount desc, writedate desc 
+		</when>
+		<otherwise>
+		writedate desc 
+		</otherwise>
+	</choose>
+	limit #{pagefirst},#{pagesize};
+	</select>	
+	
+	<!-- 정렬순 전체 게시글 조회 -->
+	<select id="SortList" resultMap="friendsboardResult">
+	select * from friendsboard where title like #{search} order by 
+	<choose>
+		<when test="sort == 'viewcount'">
+		viewcount desc, writedate desc 
+		</when>
+		<when test="sort == 'writedate'">
+		writedate desc 
+		</when>
+		<when test="sort == 'likecount'">
+		likecount desc, writedate desc 
+		</when>
+		<otherwise>
+		writedate desc 
+		</otherwise>
+	</choose>
+	limit #{pagefirst},#{pagesize};
+	</select>
+	
+	<!-- 전체 게시글 총 수 구하기 -->
+	<select id="getTotal" resultType="_int">
+	<![CDATA[
+	select count(num) from friendsboard where title like #{search};
+	]]>
+	</select>
+
+	<!-- 게시글 작성 kakao아이디만 입력시-->
+	<insert id="writekakao" parameterType="friendsboardVO">
+	<![CDATA[
+	insert into friendsboard (title, nickname, content, communityname, introduction, appmethod, state, startdate, enddate, membercount, nowcount, kakao) 
+	values (#{title}, #{nickname}, #{content}, #{communityname}, #{introduction}, #{appmethod}, #{state}, #{startdate}, #{enddate}, #{membercount}, #{nowcount}, #{kakao});
+	]]>
+	</insert>
+	
+	<!-- 게시글 작성 phone번호만 입력시-->
+	<insert id="writephone" parameterType="friendsboardVO">
+	<![CDATA[
+	insert into friendsboard (title, nickname, content, communityname, introduction, appmethod, state, startdate, enddate, membercount, nowcount, phone) 
+	values (#{title}, #{nickname}, #{content}, #{communityname}, #{introduction}, #{appmethod}, #{state}, #{startdate}, #{enddate}, #{membercount}, #{nowcount}, #{phone});
+	]]>
+	</insert>
+	
+	<!-- 게시글 작성 phone번호 카카오아이디 둘다 입력시-->
+	<insert id="write" parameterType="friendsboardVO">
+	<![CDATA[
+	insert into friendsboard (title, nickname, content, communityname, introduction, appmethod, state, startdate, enddate, membercount, nowcount, kakao, phone) 
+	values (#{title}, #{nickname}, #{content}, #{communityname}, #{introduction}, #{appmethod}, #{state}, #{startdate}, #{enddate}, #{membercount}, #{nowcount}, #{kakao}, #{phone});
+	]]>
+	</insert>
+	
+	<!-- 최근 게시글 번호 조회 -->
+	<select id="getMaxNum" resultType="_int">
+	<![CDATA[
+	select max(num) from friendsboard;
+	]]>
+	</select>
+	
+	<!-- 이미지 경로 변경 -->
+	<update id="contentChange" parameterType="hashmap">
+	<![CDATA[
+	update friendsboard set content = #{afterContent} where num = ${contentNum};
+	]]>
+	</update>
+	
+	<!-- 게시글 상세보기 -->
+	<select id="viewList" parameterType="_int" resultType="friendsboardVO">
+	<![CDATA[
+	select * from friendsboard where num = #{contentNum};
+	]]>
+	</select>	
+	
+	<!-- 게시글 수정페이지 이동 -->
+	<select id="ModifyList" parameterType="_int" resultType="friendsboardVO">
+	<![CDATA[
+	select * from friendsboard where num = #{contentNum};
+	]]>
+	</select>	
+	
+	<!-- 게시글 수정 kakao아이디만 입력시-->
+	<update id="Modifykakao" parameterType="friendsboardVO">
+	<![CDATA[
+	update friendsboard set title = #{title}, content = #{content} , introduction = #{introduction}, appmethod = #{appmethod}, state = #{state},
+						   startdate = #{startdate}, enddate = #{enddate}, membercount = #{membercount}, nowcount = #{nowcount}, kakao = #{kakao} where num = #{num}
+	]]>
+	</update>
+	
+	
+	<!-- 게시글 수정 phone만 입력시-->
+	<update id="Modifyphone" parameterType="friendsboardVO">
+	<![CDATA[
+	update friendsboard set title = #{title}, content = #{content} , introduction = #{introduction}, appmethod = #{appmethod}, state = #{state},
+						   startdate = #{startdate}, enddate = #{enddate}, membercount = #{membercount}, nowcount = #{nowcount}, phone = #{phone} where num = #{num}
+	]]>
+	</update>
+	
+	<!-- 게시글 수정 kakao아이디 phone 둘 다입력시-->
+	<update id="Modify" parameterType="friendsboardVO">
+	<![CDATA[
+	update friendsboard set title = #{title}, content = #{content} , introduction = #{introduction}, appmethod = #{appmethod}, state = #{state},
+						   startdate = #{startdate}, enddate = #{enddate}, membercount = #{membercount}, nowcount = #{nowcount}, kakao = #{kakao}, phone = #{phone} where num = #{num}
+	]]>
+	</update>
+
+	<!-- 게시글 삭제시 닉네임 체크 -->
+	<select id="idCheck" parameterType="_int" resultType="String">
+	<![CDATA[
+	select nickname from friendsboard where num = #{contentNum};
+	]]>
+	</select>	
+
+	<!-- 게시글 삭제 -->
+	<delete id="condelete" parameterType="_int">
+	<![CDATA[
+	delete from friendsboard where num = #{contentNum};
+	]]>
+	</delete>
+
+
+
+
+
+
+
+
+</mapper>

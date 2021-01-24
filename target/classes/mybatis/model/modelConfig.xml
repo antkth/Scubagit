@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration 	PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<typeAliases>
+ 		<typeAlias type="com.scuba.member.MemberVO" alias="memberVO"/>
+ 		<typeAlias type="com.scuba.information.InformationVO" alias="informationVO"/>
+ 		<typeAlias type="com.scuba.serviceCenter.ServiceCenterVO" alias="serviceCenterVO"/>
+ 		<typeAlias type="com.scuba.freeboard.FreeBoardVO" alias="freeboardVO"/>
+ 		<typeAlias type="com.scuba.resort.ResortVO" alias="resortVO"/>
+ 		<typeAlias type="com.scuba.underwaterboard.UnderwaterboardVO" alias="underwaterboardVO"/>
+ 		<typeAlias type="com.scuba.reviewboard.ReviewboardVO" alias="reviewboardVO"/>
+ 		<typeAlias type="com.scuba.jobSearchboard.JobSearchboardVO" alias="jobsearchboardVO"/>
+ 		<typeAlias type="com.scuba.marketboard.MarketBoardVO" alias="marketboardVO"/>
+ 		<typeAlias type="com.scuba.friendsboard.FriendsBoardVO" alias="friendsboardVO"/>
+ 		<typeAlias type="com.scuba.declaration.DeclarationVO" alias="declarationVO"/>
+ 		<typeAlias type="com.scuba.reply.ReplyVO" alias="replyVO"/>
+ 		<typeAlias type="com.scuba.notice.NoticeVO" alias="noticeVO"/>
+ 		<typeAlias type="com.scuba.event.EventVO" alias="eventVO"/>
+	</typeAliases>
+</configuration>

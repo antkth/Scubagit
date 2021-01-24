@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.Service" >
+	<resultMap type="serviceCenterVO" id="QuestionsList">
+		<result column="Num" property="Num"/>
+		<result column="category" property="category"/>
+		<result column="title" property="title"/>
+		<result column="contents" property="contents"/>
+		<result column="topQuestions" property="topQuestions"/>
+	</resultMap>
+	<resultMap type="serviceCenterVO" id="inquiryList">
+		<result column="id" property="id"/>
+		<result column="Num" property="Num"/>
+		<result column="title" property="title"/>
+		<result column="contents" property="contents"/>
+		<result column="writedate" property="writedate"/>
+		<result column="answer" property="answer"/>
+		<result column="answerstatus" property="answerstatus"/>
+	</resultMap>
+	<!-- Questions 테이블 NullCheck -->
+	<select id="QuestionsNullCheck" resultType="int">
+		<![CDATA[
+		SELECT count(num) FROM questions;
+		]]>
+	</select>
+	<!-- Questions테이블 최대 Num 구하기 -->
+	<select id="getQuestionsMaxNum" resultType="int">
+		<![CDATA[
+		select max(num) From questions;
+		]]>
+	</select>
+	<!-- Questions테이블 값 넣기 -->
+	<insert id="EnterQuestions" parameterType="serviceCenterVO">
+		<![CDATA[
+	    INSERT INTO questions (`Num`, `category`, `title`, `contents`)
+		value (#{Num},#{category},#{title},#{contents})
+		]]>
+	</insert>
+	<!-- Questions테이블 카테고리 종류 가져오기 -->
+	<select id="getQuestionsCategory" resultType="String">
+		<![CDATA[
+		select distinct category from questions
+		]]>
+	</select>
+<!-- 	질문 리스트 가져오기 -->
+	<select id="getQuestionsList" parameterType="String" resultMap="QuestionsList">
+		<![CDATA[
+		select * from questions where category = #{category}
+		]]>
+	</select>
+<!-- 	자주묻는 질문 리스트 가져오기 -->
+	<select id="getTopQuestionsList" resultMap="QuestionsList">
+		<![CDATA[
+		select * from questions where topQuestions=1
+		]]>
+	</select>
+<!-- 	관리자 페이지 리스트 가져오기 -->
+	<select id="getList" parameterType="int" resultMap="QuestionsList">
+		<![CDATA[
+		select * from questions where topQuestions=#{TopQuestions}
+		]]>
+	</select>
+<!-- 	자주묻는질문 변경 -->
+	<update id="changeQuestions" parameterType="hashmap">
+		<![CDATA[
+		UPDATE questions SET topQuestions = #{TopQuestions} WHERE Num = #{Num};
+		]]>
+	</update>
+<!-- 	관리자 질문 삭제 -->
+	<delete id="delQuestions" parameterType="int">
+		<![CDATA[
+		DELETE FROM questions WHERE Num = #{Num}
+		]]>
+	</delete>
+<!-- Inquiry 테이블 NullCheck -->
+	<select id="InquiryNullCheck" resultType="int">
+		<![CDATA[
+		SELECT count(num) FROM Inquiry;
+		]]>
+	</select>
+<!-- Inquiry테이블 최대 Num 구하기 -->
+	<select id="getInquiryMaxNum" resultType="int">
+		<![CDATA[
+		select max(num) From Inquiry;
+		]]>
+	</select>
+<!-- Inquiry테이블 값 넣기 -->
+	<insert id="EnterInquiry" parameterType="serviceCenterVO">
+		<![CDATA[
+		INSERT INTO inquiry (`id`, `Num`, `title`, `contents`) 
+		VALUES (#{id},#{Num},#{title},#{contents});
+		]]>
+	</insert>
+<!-- Inquiry 테이블 리스트 가져오기 -->
+	<select id="getinquirylist" parameterType="String" resultMap="inquiryList">
+		<![CDATA[
+		select * from inquiry where id = #{id} order by num desc
+		]]>
+	</select>
+<!-- 	1대1문의 관리자 페이지 리스트 가져오기  -->
+	<select id="getAllinquiryList" parameterType="int" resultMap="inquiryList">
+		<![CDATA[
+		select * from inquiry where answerstatus = #{answerstatus} order by Num desc
+		]]>
+	</select>
+<!-- 	1대1문의 글번호로 정보 가져오기 -->
+	<select id="getinquiryinfo" parameterType="int" resultType="serviceCenterVO">
+		<![CDATA[
+		select * from inquiry where Num = #{Num}
+		]]>
+	</select>
+<!-- 	1대1문의 수정하기 -->
+	<update id="ModInquiry" parameterType="serviceCenterVO">
+		<![CDATA[
+		UPDATE inquiry SET answer = #{answer}, answerstatus = 1 WHERE Num = #{Num}
+		]]>
+	</update>
+</mapper>

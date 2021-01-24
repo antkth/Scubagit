@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.Freeboard">
+	<resultMap type="freeboardVO" id="FreeBoardResult">
+		<result property="num" column="num" />
+		<result property="nickname" column="nickname" />
+		<result property="viewcount" column="viewcount" />
+		<result property="likecount" column="likecount" />
+		<result property="writedate" column="writedate" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="communityname" column="communityname" />
+	</resultMap>
+
+	<!-- 전체 게시글 조회 -->
+	<select id="allBoardList" parameterType="hashmap" resultMap="FreeBoardResult">
+	select * from freeboard where title like #{search} order by 
+	<choose>
+		<when test="sort == 'viewcount'">
+		viewcount desc, writedate desc 
+		</when>
+		<when test="sort == 'writedate'">
+		writedate desc 
+		</when>
+		<when test="sort == 'likecount'">
+		likecount desc, writedate desc 
+		</when>
+		<otherwise>
+		writedate desc 
+		</otherwise>
+	</choose>
+	limit #{pagefirst},#{pagesize};
+	</select>
+	
+	<!-- 정렬순 전체 게시글 조회 -->
+	<select id="SortList" parameterType="hashmap" resultMap="FreeBoardResult">
+	select * from freeboard where title like #{search} order by 
+	<choose>
+		<when test="sort == 'viewcount'">
+		viewcount desc, writedate desc 
+		</when>
+		<when test="sort == 'writedate'">
+		writedate desc 
+		</when>
+		<when test="sort == 'likecount'">
+		likecount desc, writedate desc 
+		</when>
+		<otherwise>
+		writedate desc 
+		</otherwise>
+	</choose>
+	limit #{pagefirst},#{pagesize};
+	</select>
+	
+	<!-- 전체 게시글 총 수 구하기 -->
+	<select id="getTotal" resultType="_int">
+	<![CDATA[
+	select count(num) from freeboard where title like #{search};
+	]]>
+	</select>
+	
+	<!-- 게시글 작성 -->
+	<insert id="write" parameterType="freeboardVO">
+	<![CDATA[
+	INSERT INTO freeboard (nickname, title, content, communityname) values (#{nickname}, #{title}, #{content}, #{communityname})
+	]]>
+	</insert>
+	
+	<!-- 임시폴더에서 서버폴더 이동 후 파일 경로 변경 -->
+	<update id="contentChange" parameterType="hashmap">
+	<![CDATA[
+	update freeboard set content = #{afterContent} where num = #{contentNum};
+	]]>
+	</update>
+	
+	<!-- 최근 게시글 번호 조회 -->
+	<select id="getMaxNum" resultType="_int">
+	<![CDATA[
+	select max(num) from freeboard;
+	]]>
+	</select>
+	
+	<!-- 게시글 상세보기 -->
+	<select id="viewList" parameterType="_int" resultType="freeboardVO">
+	<![CDATA[
+	select * from freeboard where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 삭제시 닉네임 체크 -->
+	<select id="idCheck" parameterType="_int" resultType="String">
+	<![CDATA[
+	select nickname from freeboard where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="condelete" parameterType="_int">
+	<![CDATA[
+	delete from freeboard where num = #{contentNum};
+	]]>
+	</delete>
+	
+	<!-- 게시글 수정페이지 이동 -->
+	<select id="ModifyList" parameterType="_int" resultType="freeboardVO">
+	<![CDATA[
+	select * from freeboard where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 수정 -->
+	<update id="Modify" parameterType="freeboardVO">
+	<![CDATA[
+	update freeboard set title = #{title}, content = #{content} where num = #{num};
+	]]>
+	</update>
+
+	
+</mapper>

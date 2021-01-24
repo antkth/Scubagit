@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.information" >
+	<resultMap type="informationVO" id="getfishlist">
+		<result column="FishName" property="FishName"/>
+		<result column="FishExp" property="FishExp"/>
+		<result column="FishImage" property="FishImage"/>
+		<result column="HauntingCity" property="HauntingCity"/>
+	</resultMap>
+<!-- 	국가 DB 인설트 -->
+	<insert id="enterCountry" parameterType="informationVO">
+	<![CDATA[
+	insert into country values(#{CountryName},#{CountryImage},#{CityXpoint},
+	#{CityYpoint},#{CityName},#{CityExp},#{AveTemper},#{Season})
+	]]>
+	</insert>
+<!-- 	국가명 리스트 가져오기 -->
+	<select id="getCountryName" resultType="String">
+	<![CDATA[
+	select distinct CountryName from country
+	]]>
+	</select>
+<!-- 	국가 정보 가져오기 -->
+	<select id="getCountryinfo" parameterType="String" resultType="informationVO">
+	<![CDATA[
+	select * from country where CountryName = #{CountryName} limit 1
+	]]>
+	</select>
+<!-- 	도시 DB 인설트 -->
+	<insert id="enterCity" parameterType="informationVO">
+	<![CDATA[
+	insert into city values(#{CityName},#{CityImage},#{CountryName},
+	#{DivingXpoint},#{DivingYpoint},#{DivingName},#{DivingExp},#{DivingRating},
+	#{DivingDepthMin},#{DivingDepthMax})
+	]]>
+	</insert>
+<!-- 	국가카테고리 변경시 도시 리스트가져오기 -->
+	<select id="getCityList" parameterType="String" resultType="String">
+	<![CDATA[
+	select distinct CityName from city where CountryName = #{CountryName}
+	]]>
+	</select>
+<!-- 	국가카테고리 등록시 도시 리스트가져오기 -->
+	<select id="getEnterCityList" parameterType="String" resultType="String">
+	<![CDATA[
+	select distinct CityName from country where CountryName = #{CountryName}
+	]]>
+	</select>
+<!-- 	도시 정보 가져오기 -->
+	<select id="getCityinfo" parameterType="String" resultType="informationVO">
+	<![CDATA[
+	select * from city where CityName = #{CityName} limit 1
+	]]>
+	</select>
+<!-- 	국가 포인트 정보 가져오기 -->
+	<select id="getCountryPointinfo" parameterType="String" resultType="hashmap">
+	<![CDATA[
+	select * from country where CountryName = #{CountryName}
+	]]>
+	</select>
+<!-- 다이빙 사이트 리스트 가져오기 -->
+	<select id="getDivinglist" parameterType="String" resultType="informationVO">
+	<![CDATA[
+	select distinct Co.CityName , Co.CountryName , Ci.CityImage , Co.CityExp , 
+	Co.aveTemper , Co.Season , Ci.DivingXpoint , Ci.DIvingYpoint , Ci.DivingName , 
+	Ci.DivingExp , Ci.DivingRating , Ci.DivingDepthMin , Ci.DIvingDepthMax
+	from Country Co join City Ci 
+	on Co.CityName = Ci.CityName where Co.CityName = #{CityName}; 
+	]]>
+	</select>
+<!-- 	국가 테이블 도시가 도시테이블 도시에 있는지 확인 -->
+	<select id="CityCheck" parameterType="String" resultType="int">
+	<![CDATA[
+	select count(*) from City where CityName = #{CityName}
+	]]>
+	</select>
+<!-- 	다이빙 사이트 뷰페이지 정보가져오기 -->
+	<select id="DivingSiteinfo" parameterType="hashmap" resultType="informationVO">
+	<![CDATA[
+	select * from city where CityName = #{CityName} and DivingName = #{DivingName};
+	]]>
+	</select>
+<!-- 	어류등록  -->
+	<insert id="SendFish" parameterType="informationVO">
+	<![CDATA[
+	insert into fish values(#{FishName},#{FishExp},#{FishImage},#{HauntingCity})
+	]]>
+	</insert>
+<!-- 	어류 리스트 가져오기 -->
+	<select id="getFishList" resultMap="getfishlist">
+	<![CDATA[
+	select * from Fish
+	]]>
+	</select>
+<!-- 	특정 어류 출몰지역 가져오기 -->
+	<select id="getHauntingCity" parameterType="String" resultType="String">
+	<![CDATA[
+	select HauntingCity from Fish where FishName = #{FishName}
+	]]>
+	</select>
+<!-- 	서식지 추가 -->
+	<update id="addHaunting" parameterType="hashmap">
+	<![CDATA[
+	update fish set HauntingCity = #{HauntingCity} where FishName = #{FishName}
+	]]>
+	</update>
+<!-- 	국가페이지 도시 이미지 뛰워주기 -->
+	<select id="antherCityArea" parameterType="String" resultType="hashmap">
+	<![CDATA[
+	select distinct CityName ,CityImage from City 
+	where countryName = #{CountryName} limit 0,3
+	]]>
+	</select>
+<!-- 	도시페이지 어류 가져오기 -->
+	<select id="getFishinCity" parameterType="String" resultType="hashmap">
+	<![CDATA[
+	select * from fish where HauntingCity like #{CityName};
+	]]>
+	</select>
+<!-- 	랜덤 시티 네임 가져오기 -->
+	<select id="getRandomCityName" resultType="String">
+	<![CDATA[
+	SELECT distinct cityName FROM city order by rand() limit 1;
+	]]>
+	</select>
+<!-- 	시티 리스트 가져오기 -->
+	<select id="getAllCityList" resultType="String">
+	<![CDATA[
+	select distinct cityname from city
+	]]>
+	</select>
+</mapper>

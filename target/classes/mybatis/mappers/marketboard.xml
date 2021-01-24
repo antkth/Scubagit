@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.Marketboard">
+	<resultMap type="marketboardVO" id="marketboardResult">
+		<result property="num" column="num" />
+		<result property="nickname" column="nickname" />
+		<result property="viewcount" column="viewcount" />
+		<result property="likecount" column="likecount" />
+		<result property="writedate" column="writedate" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="dealstatus" column="dealstatus" />
+		<result property="phone" column="phone" />
+		<result property="price" column="price" />
+		<result property="productstatus" column="productstatus" />
+		<result property="marketcategory" column="marketcategory" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<!-- 전체 게시글 조회 (팝니다) -->
+	<select id="allBoardList1" parameterType="hashmap" resultMap="marketboardResult">
+		<choose>
+			<when test="searchsort == '팝니다'">
+				<![CDATA[
+				select * from marketboard where marketcategory = '팝니다' and title like #{search1} order by num desc limit #{paging1.pagefirst},#{paging1.pagesize};
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select * from marketboard where marketcategory = '팝니다' order by num desc limit #{paging1.pagefirst},#{paging1.pagesize};
+				]]>
+			</otherwise>
+		</choose>
+	</select>	
+	
+	<!-- 전체 게시글 조회 (삽니다) -->
+	<select id="allBoardList2" parameterType="hashmap" resultMap="marketboardResult">
+		<choose>
+			<when test="searchsort == '삽니다'">
+				<![CDATA[
+				select * from marketboard where marketcategory = '삽니다' and title like #{search2} order by num desc limit #{paging2.pagefirst},#{paging2.pagesize};
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select * from marketboard where marketcategory = '삽니다' order by num desc limit #{paging2.pagefirst},#{paging2.pagesize};
+				]]>
+			</otherwise>
+		</choose>
+	</select>		
+	
+	<!-- 총 게시글 수 구하기 (팝니다)-->
+	<select id="getTotal1" parameterType="hashmap" resultType="_int">
+		<choose>
+			<when test="searchsort == '팝니다'">
+				<![CDATA[
+				select count(num) from marketboard where marketcategory = '팝니다' and title like #{search1};
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select count(num) from marketboard where marketcategory = '팝니다';
+				]]>
+			</otherwise>
+		</choose>
+	</select>	
+	
+	<!-- 총 게시글 수 구하기 (삽니다)-->
+	<select id="getTotal2" parameterType="hashmap" resultType="_int">
+		<choose>
+			<when test="searchsort == '삽니다'">
+				<![CDATA[
+				select count(num) from marketboard where marketcategory = '삽니다' and title like #{search2};
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select count(num) from marketboard where marketcategory = '삽니다';
+				]]>
+			</otherwise>
+		</choose>
+	</select>	
+
+	<!-- 게시글 작성 -->
+	<insert id="write" parameterType="marketboardVO">
+	<![CDATA[
+	insert into marketboard (title, nickname, content, communityname, marketcategory, phone, price, productstatus) 
+	values (#{title}, #{nickname}, #{content}, #{communityname}, #{marketcategory}, #{phone}, #{price}, #{productstatus});
+	]]>
+	</insert>
+
+	<!-- 최근 게시글 번호 조회 -->
+	<select id="getMaxNum" resultType="_int">
+	<![CDATA[
+	select max(num) from marketboard;
+	]]>
+	</select>
+
+	<!-- 이미지 경로 변경 -->
+	<update id="contentChange" parameterType="hashmap">
+	<![CDATA[
+	update marketboard set content = #{afterContent} where num = ${contentNum};
+	]]>
+	</update>
+
+	<!-- 게시글 상세보기 -->
+	<select id="viewList" parameterType="_int" resultType="marketboardVO">
+	<![CDATA[
+	select * from marketboard where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 수정페이지 이동 -->
+	<select id="ModifyList" parameterType="_int" resultType="marketboardVO">
+	<![CDATA[
+	select * from marketboard where num = #{contentNum};
+	]]>
+	</select>	
+	
+	<!-- 게시글 수정 -->
+	<update id="Modify" parameterType="marketboardVO">
+	<![CDATA[
+	update marketboard set title = #{title}, content = #{content} , marketcategory = #{marketcategory}, phone = #{phone}, price = #{price},
+								   productstatus = #{productstatus} where num = #{num};
+	]]>
+	</update>		
+	
+	<!-- 게시글 삭제시 닉네임 체크 -->
+	<select id="idCheck" parameterType="_int" resultType="String">
+	<![CDATA[
+	select nickname from marketboard where num = #{contentNum};
+	]]>
+	</select>	
+	
+	<!-- 게시글 삭제 -->
+	<delete id="condelete" parameterType="_int">
+	<![CDATA[
+	delete from marketboard where num = #{contentNum};
+	]]>
+	</delete>
+	
+	<!-- 판매 상태 변경 -->
+	<update id="dealState" parameterType="hashmap">
+	update marketboard set dealstatus = #{state} where num = #{num}
+	</update>
+
+</mapper>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.resort" >
+	<resultMap type="resortVO" id="getresortList">
+		<result column="num" property="num"/>
+		<result column="resortStatus" property="resortStatus"/>
+		<result column="nickName" property="nickName"/>
+		<result column="resortName" property="resortName"/>
+		<result column="phoneNumber" property="phoneNumber"/>
+		<result column="cacaoId" property="cacaoId"/>
+		<result column="homepageAddress" property="homepageAddress"/>
+		<result column="simpleIntroduce" property="simpleIntroduce"/>
+		<result column="contents" property="contents"/>
+		<result column="tag" property="tag"/>
+		<result column="address" property="address"/>
+		<result column="country" property="country"/>
+		<result column="image1" property="image1"/>
+		<result column="image2" property="image2"/>
+		<result column="image3" property="image3"/>
+		<result column="city" property="city"/>
+		<result column="enterDate" property="enterDate"/>
+		<result column="viewCount" property="viewCount"/>
+	</resultMap>
+	<resultMap type="resortVO" id="reviewList">
+		<result column="num" property="num"/>
+		<result column="nickName" property="nickName"/>
+		<result column="contents" property="contents"/>
+		<result column="grade" property="grade"/>
+		<result column="enterDate" property="enterDate"/>
+		<result column="image" property="image1"/>
+	</resultMap>
+<!-- 	리조트  글 존재여부 확인 -->
+	<select id="CheckNum" resultType="int">
+		<![CDATA[
+		select count(num) from resort
+		]]>
+	</select>
+<!-- 	리조트 최대 번호 구하기 -->
+	<select id="getMaxNum" resultType="int">
+		<![CDATA[
+		select max(num) from resort
+		]]>
+	</select>
+<!-- 	리조트 등록 -->
+	<insert id="EnterResort" parameterType="resortVO">
+		<![CDATA[
+		INSERT INTO resort (`num`, `nickName`, `resortName`, `phoneNumber`, `cacaoId`,
+		`homepageAddress`, `simpleIntroduce`, `contents`, `tag`, `image1`,
+		`image2`, `image3`, `address`, `country`, `city`)
+		VALUES (#{num},#{nickName},#{resortName},#{phoneNumber},
+		#{cacaoId},#{homepageAddress},#{simpleIntroduce},#{contents},#{tag},
+		#{image1},#{image2},#{image3},#{address},#{country},#{city})
+		]]>
+	</insert>
+	<!-- 	리조트 총 글 갯수 구하기 -->
+	<select id="getResortCount" resultType="int" parameterType="hashmap">
+		<![CDATA[
+		select count(num) from resort 
+		where resortStatus = #{resortStatus} and resortName like #{search}
+		]]>
+	</select>
+<!-- 	관리자 리조트 리스트 가져오기 -->
+	<select id="getAdminResortList" parameterType="hashmap" resultMap="getresortList">
+		<![CDATA[
+		select * from resort where resortStatus=#{resortStatus}
+		and	resortName like #{search} order by num limit #{pagefirst},5
+		]]>
+	</select>
+<!-- 	시티명으로 리조트 리스트 가져오기 -->
+	<select id="getCityResortList" parameterType="String" resultMap="getresortList">
+		<![CDATA[
+		select * from resort where city=#{CityName}
+		]]>
+	</select>
+<!-- 	시티명으로 리조트 리스트 가져오기 (index) -->
+	<select id="getIndexCityResortList" parameterType="String" resultMap="getresortList">
+		<![CDATA[
+		select * from resort where city=#{CityName} limit 6
+		]]>
+	</select>
+<!-- 	컨텐트 내용 변경 -->
+	<update id="contentChange" parameterType="hashmap">
+		<![CDATA[
+		update resort set contents = #{afterContent} where num = ${contentNum};
+		]]>
+	</update>
+<!-- 	리조트 번호로 리조트 정보 가져오기 -->
+	<select id="getResortInfo" parameterType="int" resultType="resortVO">
+		<![CDATA[
+		select * from resort where num = #{num}
+		]]>
+	</select>
+<!-- 	조회수 추가 -->
+	<update id="viewCountAdd" parameterType="int">
+		<![CDATA[
+		update resort set viewCount=viewCount+1 where num = #{num}
+		]]>
+	</update>
+<!-- 	리조트 상태 변경 -->
+	<update id="changeResortStatus" parameterType="hashmap">
+		<![CDATA[
+		update resort set resortstatus = #{status} where num = #{num}
+		]]>
+	</update>
+<!-- 	리조트 삭제 -->
+	<update id="delResort" parameterType="int">
+		<![CDATA[
+		update resort set resortstatus = 2 where num = #{num}
+		]]>
+	</update>
+<!-- 	리조트 리스트 가져오기시 총갯수 구하기 -->
+	<select id="gettotal" parameterType="hashmap" resultType="int">
+		<![CDATA[
+		select count(num) from resort where resortName like #{search}
+		and city like #{city}
+		]]>
+	</select>
+<!-- 	리조트 리스트 가져오기 -->
+	<select id="getResrotList" parameterType="hashmap" resultMap="getresortList">
+		<choose>
+			<when test="order.equals('enterDate')">
+				<![CDATA[
+				select * from resort where resortName like #{search} 
+				and city like #{city} and resortstatus=1 order by enterDate desc limit #{pagefirst},5
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select * from resort where resortName like #{search} 
+				and city like #{city} and resortstatus=1 order by viewCount desc limit #{pagefirst},5
+				]]>
+			</otherwise>
+		</choose>
+	</select>
+<!-- 	리조트 수정  -->
+	<update id="ResortMod" parameterType="resortVO">
+		<![CDATA[
+		UPDATE resort SET `resortName` = #{resortName}, `phoneNumber` = #{phoneNumber}, `cacaoId` = #{cacaoId}, 
+		`homepageAddress` = #{homepageAddress}, `simpleIntroduce` = #{simpleIntroduce}, `contents` = #{contents}, 
+		`tag` = #{tag}, `image1` = #{image1}, `image2` = #{image2}, `image3` = #{image3}, 
+		`address` = #{address}, `country` = #{country}, `city` = #{city}, `enterDate` = #{enterDate}
+		 WHERE num = #{num}
+		]]>
+	</update>
+<!-- 	리뷰 등록  -->
+	<update id="ReviewsWrite" parameterType="resortVO">
+		<![CDATA[
+		INSERT INTO review (`num`, `nickName`, `contents`, `grade`) 
+		VALUES (#{num},#{nickName},#{contents},#{grade});
+		]]>
+	</update>
+	<select id="getReviewsList" parameterType="int" resultMap="reviewList">
+		<![CDATA[
+		select r.num , r.nickName , m.image , r.contents , r.grade , r.enterDate 
+		from review r join member m on r.nickName = m.nickName 
+		where num = #{num} order by enterDate desc;
+		]]>
+	</select>
+	<select id="reviewCheck" parameterType="hashmap" resultType="int">
+		<![CDATA[
+		select count(num) from review where num = #{num} and nickName = #{nickName}
+		]]>
+	</select>
+	<delete id="delReviews" parameterType="hashmap">
+		<![CDATA[
+		DELETE FROM resort WHERE num = #{num} and nickName = #{nickName};
+		]]>
+	</delete>
+</mapper>

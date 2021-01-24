@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.JobSearchboard">
+	<resultMap type="jobsearchboardVO" id="jobSearchBoardResult">
+		<result property="num" column="num" />
+		<result property="nickname" column="nickname" />
+		<result property="viewcount" column="viewcount" />
+		<result property="likecount" column="likecount" />
+		<result property="writedate" column="writedate" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="communityname" column="communityname" />
+	</resultMap>
+	
+	<!-- 전체 게시글 조회 (구인) -->
+	<select id="allBoardList1" parameterType="hashmap" resultMap="jobSearchBoardResult">
+		<choose>
+			<when test="searchsort == '구인'">
+				<![CDATA[
+				select * from jobsearchboard where jobcategory = '구인' and title like #{search1} order by num desc limit #{paging1.pagefirst},#{paging1.pagesize};
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select * from jobsearchboard where jobcategory = '구인' order by num desc limit #{paging1.pagefirst},#{paging1.pagesize};
+				]]>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 전체 게시글 조회 (구직) -->
+	<select id="allBoardList2" parameterType="hashmap" resultMap="jobSearchBoardResult">
+	  <choose>
+		<when test="searchsort == '구직'">
+			<![CDATA[
+			select * from jobsearchboard where jobcategory = '구직' and title like #{search2} order by num desc limit #{paging2.pagefirst},#{paging2.pagesize};
+			]]>
+		</when>
+		<otherwise>
+			<![CDATA[
+			select * from jobsearchboard where jobcategory = '구직' order by num desc limit #{paging2.pagefirst},#{paging2.pagesize};
+			]]>
+		</otherwise>
+	 </choose>
+	</select>
+	
+	<!-- 총 게시글 수 구하기 (구인)-->
+	<select id="getTotal1" parameterType="hashmap" resultType="_int">
+		<choose>
+			<when test="searchsort == '구인'">
+				<![CDATA[
+				select count(num) from jobsearchboard where jobcategory = '구인' and title like #{search1};
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select count(num) from jobsearchboard where jobcategory = '구인';
+				]]>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 총 게시글 수 구하기 (구직)-->
+	<select id="getTotal2" parameterType="hashmap" resultType="_int">
+		<choose>
+			<when test="searchsort == '구직'">
+				<![CDATA[
+				select count(num) from jobsearchboard where jobcategory = '구직' and title like #{search2};
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+				select count(num) from jobsearchboard where jobcategory = '구직';
+				]]>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<!-- 게시글 작성 -->
+	<insert id="write" parameterType="jobsearchboardVO">
+	<![CDATA[
+	insert into jobsearchboard (title, nickname, content, communityname, jobcategory) values (#{title}, #{nickname}, #{content}, #{communityname}, #{jobcategory});
+	]]>
+	</insert>
+	
+	<!-- 최근 게시글 번호 조회 -->
+	<select id="getMaxNum" resultType="_int">
+	<![CDATA[
+	select max(num) from jobsearchboard;
+	]]>
+	</select>
+	
+	<!-- 이미지 경로 변경 -->
+	<update id="contentChange" parameterType="hashmap">
+	<![CDATA[
+	update jobsearchboard set content = #{afterContent} where num = ${contentNum};
+	]]>
+	</update>
+	
+	<!-- 게시글 상세보기 -->
+	<select id="viewList" parameterType="_int" resultType="jobsearchboardVO">
+	<![CDATA[
+	select * from jobsearchboard where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 수정페이지 이동 -->
+	<select id="ModifyList" parameterType="_int" resultType="jobsearchboardVO">
+	<![CDATA[
+	select * from jobsearchboard where num = #{contentNum};
+	]]>
+	</select>	
+
+	<!-- 게시글 수정 -->
+	<update id="Modify" parameterType="jobsearchboardVO">
+	<![CDATA[
+	update jobsearchboard set title = #{title}, content = #{content} , jobcategory = #{jobcategory} where num = #{num};
+	]]>
+	</update>	
+	
+	<!-- 게시글 삭제시 닉네임 체크 -->
+	<select id="idCheck" parameterType="_int" resultType="String">
+	<![CDATA[
+	select nickname from jobsearchboard where num = #{contentNum};
+	]]>
+	</select>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="condelete" parameterType="_int">
+	<![CDATA[
+	delete from jobsearchboard where num = #{contentNum};
+	]]>
+	</delete>
+	
+</mapper>

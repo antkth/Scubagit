@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.Reply">
+	<resultMap type="replyVO" id="replyResult">
+		<result property="num" column="num" />
+		<result property="postnum" column="postnum" />
+		<result property="communityname" column="communityname" />
+		<result property="replycontent" column="replycontent" />
+		<result property="writedate" column="writedate" />
+		<result property="nickname" column="nickname" />
+		<result property="replygroup_num" column="replygroup_num" />
+		<result property="replytype" column="replytype" />
+		<result property="status" column="status" />
+		<result property="image" column="image" />
+	</resultMap>
+
+	<!-- 댓글 리스트 -->
+	<select id="replyList" parameterType="replyVO" resultMap="replyResult">
+		select re.num, re.postnum, re.communityname , re.replycontent, re.writedate, re.nickname, 
+			   re.replygroup_num, re.replytype, re.status, mem.image from reply as re left outer join member as mem on re.nickname = mem.nickname 
+			   where re.communityname = #{communityname} and re.postnum = #{postnum} and re.replytype = 0 order by writedate desc;
+	</select>
+	
+	<!-- 대댓글 리스트 -->
+	<select id="replyList2" parameterType="replyVO" resultMap="replyResult">
+		select re.num, re.postnum, re.communityname , re.replycontent, re.writedate, re.nickname, 
+			   re.replygroup_num, re.replytype, re.status, mem.image from reply as re left outer join member as mem on re.nickname = mem.nickname 
+			   where re.communityname = #{communityname} and re.postnum = #{postnum} and re.replytype = 1 order by writedate asc;
+	</select>
+	
+	<!-- 댓글 등록 -->
+	<insert id="replywrite" parameterType="replyVO">
+		<selectKey resultType="int" keyProperty="replygroup_num" order="AFTER">
+			SELECT IFNULL(MAX(num),1) FROM reply;
+		</selectKey>
+		insert into reply (postnum, communityname, replycontent, nickname, replytype)
+		values (#{postnum}, #{communityname}, #{replycontent}, #{nickname}, #{replytype});
+	</insert>
+	
+	<!-- 댓글 그룹넘버 설정 -->
+	<update id="replygroup_num" parameterType="replyVO">
+		update reply set replygroup_num = #{replygroup_num} where num = #{replygroup_num};
+	</update>
+	
+	<!-- 대댓글 등록 -->
+	<insert id="rereplywrite" parameterType="replyVO">
+		insert into reply (postnum, communityname, replycontent, nickname, replytype, replygroup_num)
+		values (#{postnum}, #{communityname}, #{replycontent}, #{nickname}, #{replytype}, #{replygroup_num});
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="replymodify" parameterType="replyVO">
+		update reply set replycontent = #{replycontent} where num = #{num};
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<update id="replydelete" parameterType="replyVO">
+		update reply set status = 1 where replygroup_num = #{replygroup_num};
+	</update>	
+	
+	<!-- 댓글 삭제 -->
+	<update id="replydelete2" parameterType="replyVO">
+		update reply set status = 1 where num = #{num};
+	</update>
+	
+	
+	
+</mapper>
